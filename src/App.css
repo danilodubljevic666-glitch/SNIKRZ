@@ -1,0 +1,83 @@
+@import "tailwindcss";
+/* src/App.css - Dodaj na kraj fajla */
+
+/* Toast Animations */
+.animate-slide-in {
+  animation: slideIn 0.3s ease-out;
+}
+
+.animate-slide-out {
+  animation: slideOut 0.3s ease-in forwards;
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slideOut {
+  from {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+}
+
+/* Button loading animation */
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+.loading-button {
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+/* Cart badge animation */
+@keyframes bounce {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.2);
+  }
+}
+
+.cart-badge-update {
+  animation: bounce 0.3s ease-in-out;
+}
+
+/* Product card hover effects */
+.product-card {
+  transition: all 0.3s ease;
+}
+
+.product-card:hover {
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+/* Size selector styles */
+.size-button {
+  transition: all 0.2s ease;
+}
+
+.size-button:hover {
+  transform: translateY(-2px);
+}
+
+.size-button.selected {
+  box-shadow: 0 4px 6px -1px rgba(59, 130, 246, 0.3);
+}
