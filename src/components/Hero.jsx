@@ -161,51 +161,7 @@ const Hero = () => {
           </div>
         </div>
         
-        {/* Featured products slider */}
-        <div className="mt-20">
-          <div className="flex justify-between items-center mb-8">
-            <h2 className="text-2xl font-bold text-gray-900">Izdvojeno ove nedelje</h2>
-            <a href="/products" className="text-blue-600 hover:text-blue-700 font-semibold flex items-center gap-2">
-              Vidi sve
-              <ArrowRight className="h-4 w-4" />
-            </a>
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {featuredProducts.map((product, index) => (
-              <div key={index} className="group relative bg-white rounded-2xl p-6 shadow-lg hover:shadow-2xl transition-all duration-300">
-                {product.discount && (
-                  <div className="absolute top-4 left-4 bg-red-500 text-white px-3 py-1 rounded-full text-sm font-bold z-10">
-                    {product.discount}
-                  </div>
-                )}
-                <div className="relative h-64 mb-4 overflow-hidden rounded-xl">
-                  <img
-                    src={product.image}
-                    alt={product.name}
-                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                </div>
-                <div>
-                  <p className="text-sm text-gray-500">{product.category}</p>
-                  <h3 className="font-bold text-gray-900 text-lg mb-2">{product.name}</h3>
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <p className="text-xl font-bold text-gray-900">{product.price.toLocaleString()} €</p>
-                      {product.oldPrice && (
-                        <p className="text-gray-400 line-through">{product.oldPrice.toLocaleString()}€</p>
-                      )}
-                    </div>
-                    <button className="bg-blue-600 text-white px-5 py-2 rounded-lg font-semibold hover:bg-blue-700 transition-colors duration-200 opacity-0 group-hover:opacity-100 transform translate-y-2 group-hover:translate-y-0 transition-all duration-300">
-                      Dodaj
-                    </button>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
+        
       </div>
       
       {/* Wave separator */}

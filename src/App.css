@@ -81,3 +81,21 @@
 .size-button.selected {
   box-shadow: 0 4px 6px -1px rgba(59, 130, 246, 0.3);
 }
+/* Osiguraj da svi img elementi ne izlaze izvan */
+img {
+  max-width: 100%;
+  height: auto;
+}
+
+/* Za tekstualni sadržaj */
+.text-content {
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+/* Za table/elemente sa dugim sadržajem */
+table, .wide-element {
+  max-width: 100%;
+  overflow-x: auto;
+  display: block;
+}

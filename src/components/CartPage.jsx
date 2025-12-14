@@ -19,26 +19,28 @@ import {
   CreditCard,
   Truck,
   Shield,
-  AlertCircle
+  AlertCircle,
+  Euro
 } from 'lucide-react';
 
-// EmailJS konfiguracija - OVDE STAVI SVOJE PODATKE
+// EmailJS konfiguracija
 const EMAILJS_CONFIG = {
-  SERVICE_ID: 'service_02ezobl', // Zameni sa tvojim Service ID
-  TEMPLATE_ID: 'template_u76xyxl', // Zameni sa tvojim Template ID
-  PUBLIC_KEY: 'ASltbUGew2GCqRWiC' // Nađi u Account → API Keys
+  SERVICE_ID: 'service_02ezobl',
+  TEMPLATE_ID: 'template_u76xyxl',
+  PUBLIC_KEY: 'ASltbUGew2GCqRWiC'
 };
+
+// Konverzioni kurs (možeš promeniti po potrebi)
+const EUR_TO_RSD = 117.5; // Primer kursa, prilagodi trenutnom kursu
 
 const CartPage = () => {
   const navigate = useNavigate();
   
-  // Stanje korpe
   const [cartItems, setCartItems] = useState(() => {
     const savedCart = localStorage.getItem('snkrz_cart');
     return savedCart ? JSON.parse(savedCart) : [];
   });
   
-  // Form state
   const [formData, setFormData] = useState({
     full_name: '',
     email: '',
@@ -53,17 +55,25 @@ const CartPage = () => {
   const [orderSuccess, setOrderSuccess] = useState(false);
   const [orderDetails, setOrderDetails] = useState(null);
   
-  // Čuvanje korpe u localStorage
   useEffect(() => {
     localStorage.setItem('snkrz_cart', JSON.stringify(cartItems));
   }, [cartItems]);
   
-  // Računanje cena
-  const subtotal = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-  const shipping = subtotal >= 10000 ? 0 : 499;
-  const total = subtotal + shipping;
+  // Konvertuj cene iz RSD u EUR
+  const convertToEUR = (rsdAmount) => {
+    return rsdAmount / EUR_TO_RSD;
+  };
   
-  // Funkcije za korpu
+  // Računanje cena u EUR
+  const subtotalEUR = convertToEUR(cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0));
+  const shippingEUR = subtotalEUR >= 80 ? 0 : 4; // Besplatna dostava preko 80€, inače 4€
+  const totalEUR = subtotalEUR + shippingEUR;
+  
+  // Računanje cena u RSD (za email)
+  const subtotalRSD = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+  const shippingRSD = subtotalRSD >= 10000 ? 0 : 499;
+  const totalRSD = subtotalRSD + shippingRSD;
+  
   const updateQuantity = (id, change) => {
     setCartItems(items =>
       items.map(item => {
@@ -91,14 +101,12 @@ const CartPage = () => {
     }
   };
   
-  // Form handlers
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({
       ...prev,
       [name]: value
     }));
-    // Clear error for this field
     if (errors[name]) {
       setErrors(prev => ({
         ...prev,
@@ -138,30 +146,37 @@ const CartPage = () => {
     return Object.keys(newErrors).length === 0;
   };
   
-  // Format price - POPRAVLJENO da koristi tačke umjesto zareza
-  const formatPrice = (price) => {
+  // Format price za EUR
+  const formatPriceEUR = (amount) => {
+    return new Intl.NumberFormat('de-DE', {
+      style: 'currency',
+      currency: 'EUR',
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    }).format(amount);
+  };
+  
+  // Format price za RSD (za email)
+  const formatPriceRSD = (price) => {
     return new Intl.NumberFormat('de-DE', {
       minimumFractionDigits: 0,
       maximumFractionDigits: 0
     }).format(price) + ' RSD';
   };
   
-  // Send order email - POPRAVLJENA FUNKCIJA
   const sendOrderEmail = async (orderData) => {
     try {
-      // Format order items for email - KOMPLETAN HTML sa inline CSS
       const orderItemsHTML = cartItems.map(item => `
         <tr>
           <td style="padding: 12px 16px; border-bottom: 1px solid #e2e8f0; color: #334155;">${item.name}</td>
           <td style="padding: 12px 16px; border-bottom: 1px solid #e2e8f0; color: #334155;">${item.brand || 'SNKRZ'}</td>
           <td style="padding: 12px 16px; border-bottom: 1px solid #e2e8f0; color: #334155;">${item.size || 'M'}</td>
           <td style="padding: 12px 16px; border-bottom: 1px solid #e2e8f0; color: #334155;">${item.quantity}</td>
-          <td style="padding: 12px 16px; border-bottom: 1px solid #e2e8f0; color: #334155;">${formatPrice(item.price)}</td>
-          <td style="padding: 12px 16px; border-bottom: 1px solid #e2e8f0; color: #334155;">${formatPrice(item.price * item.quantity)}</td>
+          <td style="padding: 12px 16px; border-bottom: 1px solid #e2e8f0; color: #334155;">${formatPriceRSD(item.price)}</td>
+          <td style="padding: 12px 16px; border-bottom: 1px solid #e2e8f0; color: #334155;">${formatPriceRSD(item.price * item.quantity)}</td>
         </tr>
       `).join('');
       
-      // Kompletna HTML tabela sa headerom
       const completeTableHTML = `
         <table style="width: 100%; border-collapse: collapse; background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.05); margin: 20px 0;">
           <thead>
@@ -180,7 +195,6 @@ const CartPage = () => {
         </table>
       `;
       
-      // Prepare template parameters
       const templateParams = {
         full_name: formData.full_name,
         email: formData.email,
@@ -200,17 +214,19 @@ const CartPage = () => {
           hour: '2-digit',
           minute: '2-digit'
         }),
-        order_items: completeTableHTML,  // Šaljemo KOMPLETNU tabelu
-        subtotal: formatPrice(subtotal),
-        shipping: shipping === 0 ? '0 RSD (BESPLATNO)' : formatPrice(shipping),
+        order_items: completeTableHTML,
+        subtotal: formatPriceRSD(subtotalRSD),
+        shipping: shippingRSD === 0 ? '0 RSD (BESPLATNO)' : formatPriceRSD(shippingRSD),
         discount: '0 RSD',
-        total: formatPrice(total),
+        total: formatPriceRSD(totalRSD),
+        subtotal_eur: formatPriceEUR(subtotalEUR),
+        shipping_eur: shippingEUR === 0 ? '0 € (BESPLATNO)' : formatPriceEUR(shippingEUR),
+        total_eur: formatPriceEUR(totalEUR),
         order_id: orderData.orderId,
         item_count: cartItems.length,
         total_items: cartItems.reduce((sum, item) => sum + item.quantity, 0)
       };
       
-      // Send email using EmailJS
       const response = await emailjs.send(
         EMAILJS_CONFIG.SERVICE_ID,
         EMAILJS_CONFIG.TEMPLATE_ID,
@@ -223,7 +239,6 @@ const CartPage = () => {
       
     } catch (error) {
       console.error('Failed to send email:', error);
-      // Dodaj detaljnije logovanje
       console.error('EmailJS error details:', {
         message: error.text || error.message,
         code: error.status || 'N/A'
@@ -232,7 +247,6 @@ const CartPage = () => {
     }
   };
   
-  // Handle order submission
   const handleSubmitOrder = async (e) => {
     e.preventDefault();
     
@@ -249,39 +263,35 @@ const CartPage = () => {
     setIsSubmitting(true);
     
     try {
-      // Generate order ID
       const orderId = `SNKRZ-${Date.now().toString().slice(-8)}`;
       
-      // Create order object
       const orderData = {
         orderId,
         customer: formData,
         items: cartItems,
-        subtotal,
-        shipping,
-        total,
+        subtotal: subtotalEUR,
+        shipping: shippingEUR,
+        total: totalEUR,
+        subtotalRSD,
+        shippingRSD,
+        totalRSD,
         date: new Date().toISOString(),
         status: 'pending'
       };
       
-      // Send email
       const emailSent = await sendOrderEmail(orderData);
       
       if (emailSent) {
-        // Save order to localStorage (for demo)
         const savedOrders = JSON.parse(localStorage.getItem('snkrz_orders') || '[]');
         savedOrders.push(orderData);
         localStorage.setItem('snkrz_orders', JSON.stringify(savedOrders));
         
-        // Clear cart
         setCartItems([]);
         localStorage.removeItem('snkrz_cart');
         
-        // Show success
         setOrderDetails(orderData);
         setOrderSuccess(true);
         
-        // Reset form
         setFormData({
           full_name: '',
           email: '',
@@ -303,7 +313,6 @@ const CartPage = () => {
     }
   };
   
-  // Success screen
   if (orderSuccess && orderDetails) {
     return (
       <div className="min-h-screen bg-gray-50 py-12">
@@ -351,7 +360,7 @@ const CartPage = () => {
                   <div className="flex justify-between">
                     <span className="text-gray-600">Ukupan iznos:</span>
                     <span className="font-semibold text-blue-600">
-                      {formatPrice(orderDetails.total)}
+                      {formatPriceEUR(orderDetails.total)}
                     </span>
                   </div>
                 </div>
@@ -399,7 +408,7 @@ const CartPage = () => {
                       </div>
                     </div>
                     <div className="font-semibold">
-                      {formatPrice(item.price * item.quantity)}
+                      {formatPriceEUR(convertToEUR(item.price * item.quantity))}
                     </div>
                   </div>
                 ))}
@@ -424,7 +433,6 @@ const CartPage = () => {
     );
   }
   
-  // Empty cart
   if (cartItems.length === 0 && !orderSuccess) {
     return (
       <div className="min-h-screen bg-gray-50 py-12">
@@ -452,15 +460,18 @@ const CartPage = () => {
     );
   }
   
-  // Main cart page
   return (
     <div className="min-h-screen bg-gray-50 py-12">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="mb-8 flex justify-between items-center">
           <div>
             <h1 className="text-3xl font-bold text-gray-900">Završite porudžbinu</h1>
-            <p className="text-gray-600 mt-2">
-              {cartItems.length} proizvoda u korpi • {formatPrice(total)} ukupno
+            <p className="text-gray-600 mt-2 flex items-center gap-2">
+              {cartItems.length} proizvoda u korpi • 
+              <span className="font-semibold text-blue-600 flex items-center gap-1">
+                <Euro className="h-4 w-4" />
+                {formatPriceEUR(totalEUR)} ukupno
+              </span>
             </p>
           </div>
           <Link
@@ -473,7 +484,6 @@ const CartPage = () => {
         </div>
         
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Order Form */}
           <div className="lg:col-span-2">
             <div className="bg-white rounded-2xl shadow-lg p-8">
               <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-2">
@@ -482,7 +492,6 @@ const CartPage = () => {
               </h2>
               
               <form onSubmit={handleSubmitOrder} className="space-y-6">
-                {/* Full Name */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Ime i prezime *
@@ -502,7 +511,6 @@ const CartPage = () => {
                   )}
                 </div>
                 
-                {/* Email & Phone */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -543,7 +551,6 @@ const CartPage = () => {
                   </div>
                 </div>
                 
-                {/* Address */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Adresa za dostavu *
@@ -563,7 +570,6 @@ const CartPage = () => {
                   )}
                 </div>
                 
-                {/* City */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Grad *
@@ -583,7 +589,6 @@ const CartPage = () => {
                   )}
                 </div>
                 
-                {/* Notes */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Napomena za dostavu (opciono)
@@ -598,7 +603,6 @@ const CartPage = () => {
                   />
                 </div>
                 
-                {/* Trust Badges */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div className="flex items-center gap-3 p-4 bg-blue-50 rounded-lg">
                     <Shield className="h-5 w-5 text-blue-600" />
@@ -625,7 +629,6 @@ const CartPage = () => {
                   </div>
                 </div>
                 
-                {/* Submit Button */}
                 <div className="pt-6">
                   <button
                     type="submit"
@@ -644,7 +647,7 @@ const CartPage = () => {
                     ) : (
                       <>
                         <CheckCircle className="h-5 w-5" />
-                        Potvrdi porudžbinu • {formatPrice(total)}
+                        Potvrdi porudžbinu • {formatPriceEUR(totalEUR)}
                       </>
                     )}
                   </button>
@@ -659,12 +662,13 @@ const CartPage = () => {
             </div>
           </div>
           
-          {/* Order Summary */}
           <div>
             <div className="bg-white rounded-2xl shadow-lg p-6 sticky top-8">
-              <h3 className="text-lg font-bold text-gray-900 mb-6">Vaša korpa</h3>
+              <h3 className="text-lg font-bold text-gray-900 mb-6 flex items-center gap-2">
+                <ShoppingBag className="h-5 w-5" />
+                Vaša korpa
+              </h3>
               
-              {/* Cart Items */}
               <div className="space-y-4 mb-6 max-h-96 overflow-y-auto pr-2">
                 {cartItems.map((item) => (
                   <div key={item.id} className="flex items-center gap-3">
@@ -703,8 +707,9 @@ const CartPage = () => {
                             <Plus className="h-3 w-3" />
                           </button>
                         </div>
-                        <span className="font-semibold">
-                          {formatPrice(item.price * item.quantity)}
+                        <span className="font-semibold flex items-center gap-1">
+                          <Euro className="h-3 w-3 text-blue-600" />
+                          {formatPriceEUR(convertToEUR(item.price * item.quantity))}
                         </span>
                       </div>
                     </div>
@@ -712,7 +717,6 @@ const CartPage = () => {
                 ))}
               </div>
               
-              {/* Clear Cart Button */}
               <button
                 onClick={clearCart}
                 className="w-full mb-6 py-2 border border-red-300 text-red-600 rounded-lg hover:bg-red-50"
@@ -720,33 +724,39 @@ const CartPage = () => {
                 Isprazni korpu
               </button>
               
-              {/* Price Summary */}
               <div className="space-y-3 pt-6 border-t border-gray-200">
                 <div className="flex justify-between">
                   <span className="text-gray-600">Međuzbir:</span>
-                  <span className="font-semibold">{formatPrice(subtotal)}</span>
+                  <span className="font-semibold flex items-center gap-1">
+                    <Euro className="h-4 w-4 text-gray-600" />
+                    {formatPriceEUR(subtotalEUR)}
+                  </span>
                 </div>
                 
                 <div className="flex justify-between">
                   <span className="text-gray-600">Dostava:</span>
-                  <span className={`font-semibold ${shipping === 0 ? 'text-green-600' : ''}`}>
-                    {shipping === 0 ? 'BESPLATNO' : formatPrice(shipping)}
+                  <span className={`font-semibold flex items-center gap-1 ${shippingEUR === 0 ? 'text-green-600' : ''}`}>
+                    <Euro className="h-4 w-4" />
+                    {shippingEUR === 0 ? 'BESPLATNO' : formatPriceEUR(shippingEUR)}
                   </span>
                 </div>
                 
-                {subtotal < 10000 && (
-                  <p className="text-sm text-green-600 bg-green-50 p-2 rounded">
-                    Dodajte {formatPrice(10000 - subtotal)} za besplatnu dostavu!
+                {subtotalEUR < 80 && (
+                  <p className="text-sm text-green-600 bg-green-50 p-2 rounded flex items-center gap-1">
+                    <Euro className="h-3 w-3" />
+                    Dodajte {formatPriceEUR(80 - subtotalEUR)} za besplatnu dostavu!
                   </p>
                 )}
                 
                 <div className="flex justify-between text-lg font-bold pt-3 border-t border-gray-200">
                   <span>Ukupno:</span>
-                  <span className="text-blue-600">{formatPrice(total)}</span>
+                  <span className="text-blue-600 flex items-center gap-1">
+                    <Euro className="h-5 w-5" />
+                    {formatPriceEUR(totalEUR)}
+                  </span>
                 </div>
               </div>
               
-              {/* Quick Info */}
               <div className="mt-6 space-y-3">
                 <div className="flex items-start gap-2">
                   <AlertCircle className="h-5 w-5 text-blue-500 mt-0.5" />
@@ -757,7 +767,7 @@ const CartPage = () => {
                 <div className="flex items-start gap-2">
                   <Truck className="h-5 w-5 text-green-500 mt-0.5" />
                   <p className="text-sm text-gray-600">
-                    <strong>Dostava 3-5 radnih dana</strong> - Besplatna za preko 100$
+                    <strong>Dostava 3-5 radnih dana</strong> - Besplatna za preko 80€
                   </p>
                 </div>
                 <div className="flex items-start gap-2">
