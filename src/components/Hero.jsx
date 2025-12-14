@@ -1,5 +1,6 @@
 // components/Hero.jsx
 import React from 'react';
+import { Link } from 'react-router-dom'; // DODAJ OVO
 import { ArrowRight, CheckCircle, Shield, Truck } from 'lucide-react';
 
 const Hero = () => {
@@ -77,26 +78,26 @@ const Hero = () => {
               Komfor, stil i kvalitet na jednom mestu.
             </p>
             
-            {/* CTA Buttons - POPRAVLJENO ZA MOBILE */}
+            {/* CTA Buttons - KORISTI LINK KOMPONENTU */}
             <div className="flex flex-col sm:flex-row gap-4 mb-10">
-              <a
-                href="/products"
+              <Link
+                to="/products" // PROMENJENO SA href NA to
                 className="inline-flex items-center justify-center px-6 py-3 sm:px-8 sm:py-4 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-all duration-300 transform hover:-translate-y-1 shadow-lg hover:shadow-xl text-base sm:text-lg w-full sm:w-auto"
               >
                 <span className="flex items-center justify-center gap-2">
                   Istraži kolekciju
                   <ArrowRight className="h-5 w-5" />
                 </span>
-              </a>
-              <a
-                href="/sale"
+              </Link>
+              <Link
+                to="/sale" // PROMENJENO SA href NA to
                 className="inline-flex items-center justify-center px-6 py-3 sm:px-8 sm:py-4 bg-white text-blue-600 font-semibold rounded-lg border-2 border-blue-600 hover:bg-blue-50 transition-all duration-300 text-base sm:text-lg w-full sm:w-auto"
               >
                 Pogledaj popust
-              </a>
+              </Link>
             </div>
             
-            {/* Features - POPRAVLJENO ZA MOBILE */}
+            {/* Features */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6">
               {features.map((feature, index) => (
                 <div key={index} className="flex flex-col items-center text-center p-3 sm:p-0">
@@ -110,7 +111,7 @@ const Hero = () => {
             </div>
           </div>
           
-          {/* Right side - Product showcase - POPRAVLJENO ZA RESPONSIVE */}
+          {/* Right side - Product showcase */}
           <div className="relative mt-8 lg:mt-0">
             {/* Main featured product */}
             <div className="relative rounded-3xl overflow-hidden shadow-2xl transform hover:scale-[1.02] transition-transform duration-500">
@@ -127,7 +128,7 @@ const Hero = () => {
               </div>
             </div>
             
-            {/* Floating product cards - POPRAVLJEN POZICIJA ZA MOBILE */}
+            {/* Floating product cards */}
             <div className="absolute -bottom-6 -left-4 sm:-bottom-6 sm:-left-6 bg-white rounded-2xl shadow-xl p-3 sm:p-4 w-56 sm:w-64 transform hover:-translate-y-2 transition-transform duration-300 z-20">
               <div className="flex items-center gap-3 sm:gap-4">
                 <img
