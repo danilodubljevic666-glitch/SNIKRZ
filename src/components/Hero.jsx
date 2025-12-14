@@ -77,95 +77,95 @@ const Hero = () => {
               Komfor, stil i kvalitet na jednom mestu.
             </p>
             
-            {/* CTA Buttons */}
+            {/* CTA Buttons - POPRAVLJENO ZA MOBILE */}
             <div className="flex flex-col sm:flex-row gap-4 mb-10">
               <a
                 href="/products"
-                className="inline-flex items-center justify-center px-8 py-4 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-all duration-300 transform hover:-translate-y-1 shadow-lg hover:shadow-xl"
+                className="inline-flex items-center justify-center px-6 py-3 sm:px-8 sm:py-4 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-all duration-300 transform hover:-translate-y-1 shadow-lg hover:shadow-xl text-base sm:text-lg w-full sm:w-auto"
               >
-                Istraži kolekciju
-                <ArrowRight className="ml-3 h-5 w-5" />
+                <span className="flex items-center justify-center gap-2">
+                  Istraži kolekciju
+                  <ArrowRight className="h-5 w-5" />
+                </span>
               </a>
               <a
                 href="/sale"
-                className="inline-flex items-center justify-center px-8 py-4 bg-white text-blue-600 font-semibold rounded-lg border-2 border-blue-600 hover:bg-blue-50 transition-all duration-300"
+                className="inline-flex items-center justify-center px-6 py-3 sm:px-8 sm:py-4 bg-white text-blue-600 font-semibold rounded-lg border-2 border-blue-600 hover:bg-blue-50 transition-all duration-300 text-base sm:text-lg w-full sm:w-auto"
               >
                 Pogledaj popust
               </a>
             </div>
             
-            {/* Features */}
-            <div className="grid grid-cols-3 gap-6">
+            {/* Features - POPRAVLJENO ZA MOBILE */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6">
               {features.map((feature, index) => (
-                <div key={index} className="flex flex-col items-center text-center">
+                <div key={index} className="flex flex-col items-center text-center p-3 sm:p-0">
                   <div className="p-3 bg-blue-100 text-blue-600 rounded-xl mb-3">
                     {feature.icon}
                   </div>
-                  <h3 className="font-semibold text-gray-900 text-sm">{feature.title}</h3>
-                  <p className="text-xs text-gray-500 mt-1">{feature.description}</p>
+                  <h3 className="font-semibold text-gray-900 text-sm sm:text-base">{feature.title}</h3>
+                  <p className="text-xs sm:text-sm text-gray-500 mt-1">{feature.description}</p>
                 </div>
               ))}
             </div>
           </div>
           
-          {/* Right side - Product showcase */}
-          <div className="relative">
+          {/* Right side - Product showcase - POPRAVLJENO ZA RESPONSIVE */}
+          <div className="relative mt-8 lg:mt-0">
             {/* Main featured product */}
             <div className="relative rounded-3xl overflow-hidden shadow-2xl transform hover:scale-[1.02] transition-transform duration-500">
               <img
                 src="https://images.unsplash.com/photo-1600185365483-26d7a4cc7519?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80"
                 alt="Premium sneakers"
-                className="w-full h-96 object-cover"
+                className="w-full h-64 sm:h-80 md:h-96 object-cover"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
               <div className="absolute bottom-6 left-6 text-white">
                 <span className="text-sm opacity-90">FUTURISTIČKI DIZAJN</span>
-                <h3 className="text-2xl font-bold mt-1">Nike Air Force 1</h3>
+                <h3 className="text-xl sm:text-2xl font-bold mt-1">Nike Air Force 1</h3>
                 <p className="text-lg font-semibold mt-2">120.99€</p>
               </div>
             </div>
             
-            {/* Floating product cards */}
-            <div className="absolute -bottom-6 -left-6 bg-white rounded-2xl shadow-xl p-4 w-64 transform hover:-translate-y-2 transition-transform duration-300">
-              <div className="flex items-center gap-4">
+            {/* Floating product cards - POPRAVLJEN POZICIJA ZA MOBILE */}
+            <div className="absolute -bottom-6 -left-4 sm:-bottom-6 sm:-left-6 bg-white rounded-2xl shadow-xl p-3 sm:p-4 w-56 sm:w-64 transform hover:-translate-y-2 transition-transform duration-300 z-20">
+              <div className="flex items-center gap-3 sm:gap-4">
                 <img
                   src="https://images.unsplash.com/photo-1605348532760-6753d2c43329?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&q=80"
                   alt="Jordan 1"
-                  className="w-20 h-20 object-cover rounded-xl"
+                  className="w-16 h-16 sm:w-20 sm:h-20 object-cover rounded-xl"
                 />
                 <div>
-                  <h4 className="font-bold text-gray-900">Jordan 1 Retro</h4>
-                  <p className="text-sm text-gray-500">Basketball</p>
-                  <p className="text-lg font-bold text-blue-600">160.49€</p>
+                  <h4 className="font-bold text-gray-900 text-sm sm:text-base">Jordan 1 Retro</h4>
+                  <p className="text-xs sm:text-sm text-gray-500">Basketball</p>
+                  <p className="text-base sm:text-lg font-bold text-blue-600">160.49€</p>
                 </div>
               </div>
             </div>
             
-            <div className="absolute -top-6 -right-6 bg-white rounded-2xl shadow-xl p-4 w-64 transform hover:-translate-y-2 transition-transform duration-300">
-              <div className="flex items-center gap-4">
+            <div className="absolute -top-6 -right-4 sm:-top-6 sm:-right-6 bg-white rounded-2xl shadow-xl p-3 sm:p-4 w-56 sm:w-64 transform hover:-translate-y-2 transition-transform duration-300 z-20">
+              <div className="flex items-center gap-3 sm:gap-4">
                 <img
                   src="https://images.unsplash.com/photo-1606107557195-0e29a4b5b4aa?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&q=80"
                   alt="Adidas"
-                  className="w-20 h-20 object-cover rounded-xl"
+                  className="w-16 h-16 sm:w-20 sm:h-20 object-cover rounded-xl"
                 />
                 <div>
-                  <h4 className="font-bold text-gray-900">Adidas NMD</h4>
-                  <p className="text-sm text-gray-500">Streetwear</p>
+                  <h4 className="font-bold text-gray-900 text-sm sm:text-base">Adidas NMD</h4>
+                  <p className="text-xs sm:text-sm text-gray-500">Streetwear</p>
                   <div className="flex items-center gap-2">
-                    <p className="text-lg font-bold text-blue-600">130.99€</p>
-                    <p className="text-sm text-gray-400 line-through">160.99€</p>
+                    <p className="text-base sm:text-lg font-bold text-blue-600">130.99€</p>
+                    <p className="text-xs sm:text-sm text-gray-400 line-through">160.99€</p>
                   </div>
                 </div>
               </div>
             </div>
           </div>
         </div>
-        
-        
       </div>
       
       {/* Wave separator */}
-      <div className="absolute bottom-0 left-0 right-0">
+      <div className="absolute bottom-0 left-0 right-0 hidden lg:block">
         <svg 
           className="w-full h-16 text-white" 
           viewBox="0 0 1440 120" 
